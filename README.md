@@ -1,3 +1,9 @@
+来源 ：https://github.com/1053061407/vue-blog
+间书 ：https://www.jianshu.com/p/f194619f6f26
+
+增加了一些注释和自己的见解
+
+
 对于Vue的学习不能仅仅局限于学会使用它，理解他的原理也很重要。以下是我对Vue一些思想的理解。
 ### **[1.vue-MVVM篇](https://github.com/1053061407/vue-blog/tree/master/vue-MVVM)**
  理解vue双向绑定原理
