@@ -1,3 +1,4 @@
+// el 就是元素   vm是SelfVue
 function Compile(el, vm) {
     this.vm = vm;
     this.el = document.querySelector(el);
@@ -28,19 +29,19 @@ Compile.prototype = {
     compileElement: function (el) {
         var childNodes = el.childNodes;
         var self = this;
-        [].slice.call(childNodes).forEach(function(node) {
+        [].slice.call(childNodes).forEach(function(node) { // dom集合转成数组可以forEach遍历
             var reg = /\{\{(.*)\}\}/;  // () 用来标记一个子表达式的开始和结束位置
             var text = node.textContent;
           // 如果是元素节点
             if (self.isElementNode(node)) {  
                 self.compile(node);
               // 如果是文本节点
-            } else if (self.isTextNode(node) && reg.test(text)) {
-                console.log(node)
+            } else if (self.isTextNode(node) && reg.test(text)) {// 是文本节点并且符合 {{ .* }} 
+                console.log(node,'node')
               //第 0 个元素是与正则表达式相匹配的文本 reg.exec(text)[0] 为 '{{data}}'
               //第 1 个元素是与 RegExpObject 的第 1 个子表达式相匹配的文本 reg.exec(text)[1]为'data'
                 self.compileText(node, reg.exec(text)[1]);
-                console.log(reg.exec(text)[0])
+                // console.log(reg.exec(text)[0])
             }
 
             if (node.childNodes && node.childNodes.length) {
@@ -54,8 +55,8 @@ Compile.prototype = {
         Array.prototype.forEach.call(nodeAttrs, function(attr) {
             // console.log(attr); 例如这里输出 v-on:click="clickme"
             // console.log(attr.name); 例如这里输出 v-on:click
-            var attrName = attr.name;
-            if (self.isDirective(attrName)) {
+            var attrName = attr.name; // v-on:click
+            if (self.isDirective(attrName)) {  // attr.indexOf('v-') == 0;
                 var exp = attr.value;
                 var dir = attrName.substring(2);
                 if (self.isEventDirective(dir)) {  // 事件指令
@@ -69,10 +70,11 @@ Compile.prototype = {
     },
     compileText: function(node, exp) {
         var self = this;
+        // console.log(this.vm.data[exp],exp,'-------------------exp')
         var initText = this.vm[exp];
         this.updateText(node, initText);
-        new Watcher(this.vm, exp, function (value) {
-            self.updateText(node, value);
+        new Watcher(this.vm, exp, function (value, oldVal) {
+            self.updateText(node, value, oldVal);
         });
     },
     compileEvent: function (node, vm, exp, dir) {
@@ -100,10 +102,22 @@ Compile.prototype = {
             val = newValue;
         });
     },
-    updateText: function (node, value) {
-        node.textContent = typeof value == 'undefined' ? '' : value;
+    updateText: function (node, value, oldVal) {
+        // console.log(node,value,oldVal,'--------------------------')
+        if(oldVal){
+            node.textContent = node.textContent.split(oldVal).join(value);
+        }else{
+            node.textContent = node.textContent.replace(/\{\{(.*)\}\}/,function(x){
+                return typeof value == 'undefined' ? '' : value;
+            })
+        }
+        // node.textContent = typeof value == 'undefined' ? '' : value;
     },
     modelUpdater: function(node, value) {
+        // console.log(node.value,'--------------------')
+        // node.value = node.value.replace(/\{\{(.*)\}\}/,function(x){
+        //     return typeof value == 'undefined' ? '' : value;
+        // })
         node.value = typeof value == 'undefined' ? '' : value;
     },
     isDirective: function(attr) {

@@ -14,8 +14,8 @@ Watcher.prototype = {
         var oldVal = this.value;
         if (value !== oldVal) {
             this.value = value;
-            console.log(this.vm)
-            this.cb.call(this.vm, value);
+            console.log(this.vm,'this.vm')
+            this.cb.call(this.vm, value, oldVal);
         }
     },
     get: function() {
